@@ -12,10 +12,10 @@ import retrofit2.http.Query;
  */
 public interface SearchRepository {
 
-    @GET("moviesearch")
+    @GET("movies")
     Call<List<Request>> searchMovies(@Query("query") String query);
 
-    @GET("tvsearch")
+    @GET("tvshows")
     Call<List<Request>> searchTV(@Query("query") String query);
 
 }
