@@ -1,21 +1,15 @@
 package ccl2of4.plexrequests;
 
-import android.content.Context;
-import android.net.Uri;
-import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
+import android.widget.BaseAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
 import com.google.common.base.Function;
-import com.google.common.collect.FluentIterable;
-import com.google.common.collect.Iterables;
 
-import org.androidannotations.annotations.AfterViews;
 import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EFragment;
 import org.androidannotations.annotations.TextChange;
@@ -50,7 +44,7 @@ public class RequestsFragment extends Fragment {
     void searchMovies() {
         if (getQuery().isEmpty()) {
             searchResults = new ArrayList<>();
-            updateListView();
+            dataSetChanged();
             return;
         }
 
@@ -58,7 +52,7 @@ public class RequestsFragment extends Fragment {
             @Override
             public void onResponse(Call<List<Request>> call, Response<List<Request>> response) {
                 searchResults = response.body();
-                updateListView();
+                dataSetChanged();
             }
 
             @Override
@@ -68,14 +62,40 @@ public class RequestsFragment extends Fragment {
         });
     }
 
-    void updateListView() {
-        List<String> labels = FluentIterable.from(searchResults)
-                .transform(getName())
-                .toList();
-
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(getContext(), R.layout.listitem_request, R.id.request_name, labels);
-        searchResultsListView.setAdapter(adapter);
+    void dataSetChanged() {
+        if (null == searchResultsListView.getAdapter()) {
+            searchResultsListView.setAdapter(listAdapter);
+        }
+        listAdapter.notifyDataSetChanged();
     }
+
+    private BaseAdapter listAdapter = new BaseAdapter() {
+        @Override
+        public int getCount() {
+            return searchResults.size();
+        }
+
+        @Override
+        public Object getItem(int position) {
+            return searchResults.get(position);
+        }
+
+        public Request getRequest(int position) {
+            return (Request) getItem(position);
+        }
+
+        @Override
+        public long getItemId(int position) {
+            return position;
+        }
+
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent) {
+            RequestView requestView = RequestView_.build(getContext());
+            requestView.setRequest(getRequest(position));
+            return requestView;
+        }
+    };
 
     private Function<Request, String> getName() {
         return new Function<Request, String>() {
