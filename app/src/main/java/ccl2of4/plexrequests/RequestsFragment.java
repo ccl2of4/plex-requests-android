@@ -7,7 +7,13 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
+import android.widget.ListView;
 import android.widget.TextView;
+
+import com.google.common.base.Function;
+import com.google.common.collect.FluentIterable;
+import com.google.common.collect.Iterables;
 
 import org.androidannotations.annotations.AfterViews;
 import org.androidannotations.annotations.Bean;
@@ -36,7 +42,7 @@ public class RequestsFragment extends Fragment {
     TextView searchTextView;
 
     @ViewById(R.id.search_results)
-    TextView searchResultsTextView;
+    ListView searchResultsListView;
 
     private List<Request> searchResults;
 
@@ -44,7 +50,7 @@ public class RequestsFragment extends Fragment {
     void searchMovies() {
         if (getQuery().isEmpty()) {
             searchResults = new ArrayList<>();
-            updateSearchResultsTextView();
+            updateListView();
             return;
         }
 
@@ -52,7 +58,7 @@ public class RequestsFragment extends Fragment {
             @Override
             public void onResponse(Call<List<Request>> call, Response<List<Request>> response) {
                 searchResults = response.body();
-                updateSearchResultsTextView();
+                updateListView();
             }
 
             @Override
@@ -62,12 +68,22 @@ public class RequestsFragment extends Fragment {
         });
     }
 
-    private void updateSearchResultsTextView() {
-        StringBuilder str = new StringBuilder();
-        for (Request request : searchResults) {
-            str.append(request.getName()).append("\n");
-        }
-        searchResultsTextView.setText(str.toString());
+    void updateListView() {
+        List<String> labels = FluentIterable.from(searchResults)
+                .transform(getName())
+                .toList();
+
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(getContext(), R.layout.listitem_request, R.id.request_name, labels);
+        searchResultsListView.setAdapter(adapter);
+    }
+
+    private Function<Request, String> getName() {
+        return new Function<Request, String>() {
+            @Override
+            public String apply(Request request) {
+                return request.getName();
+            }
+        };
     }
 
     private String getQuery() {

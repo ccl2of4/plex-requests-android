@@ -11,9 +11,10 @@
         android:layout_height="wrap_content"
         android:hint="@string/search_placeholder" />
 
-    <TextView
+    <ListView
         android:id="@+id/search_results"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:orientation="vertical" />
 
 </LinearLayout>

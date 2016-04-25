@@ -31,7 +31,7 @@ dependencies {
     compile 'com.android.support:design:23.2.1'
     compile 'com.squareup.retrofit2:retrofit:2.0.1'
     compile 'com.squareup.retrofit2:converter-gson:2.0.0-beta4'
-    compile 'com.google.guava:guava:11.0.2'
+    compile 'com.google.guava:guava:18.0'
     compile 'org.apache.commons:commons-lang3:3.0'
     compile 'org.androidannotations:androidannotations-api:4.0.0'
     compile 'com.android.support:support-v4:23.2.1'
