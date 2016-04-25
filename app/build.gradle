@@ -26,14 +26,15 @@ def AAVersion = 'XXX'
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
     testCompile 'junit:junit:4.12'
+    apt "org.androidannotations:androidannotations:4.0.0"
     compile 'com.android.support:appcompat-v7:23.2.1'
     compile 'com.android.support:design:23.2.1'
     compile 'com.squareup.retrofit2:retrofit:2.0.1'
     compile 'com.squareup.retrofit2:converter-gson:2.0.0-beta4'
     compile 'com.google.guava:guava:11.0.2'
     compile 'org.apache.commons:commons-lang3:3.0'
-    apt "org.androidannotations:androidannotations:4.0.0"
-    compile "org.androidannotations:androidannotations-api:4.0.0"
+    compile 'org.androidannotations:androidannotations-api:4.0.0'
+    compile 'com.android.support:support-v4:23.2.1'
 }
 
 apt {

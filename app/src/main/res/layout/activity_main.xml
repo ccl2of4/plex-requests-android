@@ -7,27 +7,34 @@
     android:fitsSystemWindows="true"
     tools:context="ccl2of4.plexrequests.MainActivity">
 
-
     <LinearLayout
         android:orientation="vertical"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <EditText
-            android:id="@+id/search"
-            android:layout_width="wrap_content"
+        <android.support.design.widget.TabLayout
+            android:id="@+id/tabs"
             android:layout_height="wrap_content"
-            android:hint="@string/search_placeholder" />
+            android:layout_width="match_parent">
 
-        <TextView
-            android:id="@+id/search_results"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
+            <android.support.design.widget.TabItem
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:text="Requests"/>
 
-        <TextView
-            android:id="@+id/existing"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
+            <android.support.design.widget.TabItem
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:text="Existing"/>
+
+        </android.support.design.widget.TabLayout>
+
+        <android.support.v4.view.ViewPager
+            android:id="@+id/viewpager"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:background="@android:color/white" />
 
     </LinearLayout>
 
