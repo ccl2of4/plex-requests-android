@@ -2,6 +2,10 @@ package ccl2of4.plexrequests.model.request;
 
 import com.google.gson.annotations.SerializedName;
 
+import java.util.List;
+
+import ccl2of4.plexrequests.model.comment.Comment;
+
 /**
  * Created by connor on 4/3/16.
  */
@@ -10,6 +14,8 @@ public class Request {
     private String type;
     private String name;
     private String date;
+    private List<Comment> comments;
+
     private String summary;
 
     @SerializedName("poster_path")
@@ -39,6 +45,14 @@ public class Request {
         this.date = date;
     }
 
+    public List<Comment> getComments() {
+        return comments;
+    }
+
+    public void setComments(List<Comment> comments) {
+        this.comments = comments;
+    }
+
     public String getSummary() {
         return summary;
     }
@@ -54,6 +68,5 @@ public class Request {
     public void setPosterPath(String posterPath) {
         this.posterPath = posterPath;
     }
-
 
 }

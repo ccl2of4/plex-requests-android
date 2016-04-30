@@ -7,6 +7,7 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ListView;
 import android.widget.TextView;
 
 import org.androidannotations.annotations.AfterInject;
@@ -15,6 +16,7 @@ import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EFragment;
 import org.androidannotations.annotations.ViewById;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import ccl2of4.plexrequests.model.RepositoryFactory;
@@ -30,8 +32,8 @@ public class ExistingRequestsFragment extends Fragment {
     @Bean
     RepositoryFactory repositoryFactory;
 
-    @ViewById(R.id.existing)
-    TextView existingTextView;
+    @ViewById(R.id.existing_requests)
+    ListView listView;
 
     private List<Request> requests;
 
@@ -44,8 +46,8 @@ public class ExistingRequestsFragment extends Fragment {
         requestRepository().getRequests().enqueue(new Callback<List<Request>>() {
             @Override
             public void onResponse(Call<List<Request>> call, Response<List<Request>> response) {
-                requests = response.body();
-                updateExistingTextView();
+                requests = response.isSuccessful() ? response.body() : new ArrayList<Request>();
+                dataSetChanged();
             }
 
             @Override
@@ -55,13 +57,21 @@ public class ExistingRequestsFragment extends Fragment {
         });
     }
 
-    private void updateExistingTextView() {
-        StringBuilder str = new StringBuilder();
-        for (Request request : requests) {
-            str.append(request.getName()).append("\n");
+    void dataSetChanged() {
+        listAdapter.setRequests(requests);
+        if (null == listView.getAdapter()) {
+            listView.setAdapter(listAdapter);
         }
-        existingTextView.setText(str.toString());
     }
+
+    private RequestsListAdapter listAdapter = new RequestsListAdapter() {
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent) {
+            ExistingRequestView view = ExistingRequestView_.build(getContext());
+            view.setRequest(getRequest(position));
+            return view;
+        }
+    };
 
     private RequestRepository requestRepository() {
         return repositoryFactory.getRequestRepository();

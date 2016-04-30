@@ -35,7 +35,7 @@ public class RepositoryFactory {
     private Retrofit getRetrofit() {
         retrofit = retrofit != null ? retrofit :
                 new Retrofit.Builder()
-                        .baseUrl("http://192.168.0.5:5000/api/")
+                        .baseUrl("http://192.168.0.17:5000/api/")
                         .addConverterFactory(GsonConverterFactory.create())
                         .build();
         return retrofit;
