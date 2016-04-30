@@ -7,9 +7,6 @@ import retrofit2.Call;
 import retrofit2.http.GET;
 import retrofit2.http.Query;
 
-/**
- * Created by connor on 4/3/16.
- */
 public interface SearchRepository {
 
     @GET("movies")

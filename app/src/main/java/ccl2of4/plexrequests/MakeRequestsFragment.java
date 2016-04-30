@@ -19,6 +19,7 @@ import org.apache.commons.lang3.ObjectUtils;
 import java.util.ArrayList;
 import java.util.List;
 
+import ccl2of4.plexrequests.model.Callbacks;
 import ccl2of4.plexrequests.model.RepositoryFactory;
 import ccl2of4.plexrequests.model.request.Request;
 import ccl2of4.plexrequests.model.search.SearchRepository;
@@ -31,6 +32,9 @@ public class MakeRequestsFragment extends Fragment {
 
     @Bean
     RepositoryFactory repositoryFactory;
+
+    @Bean
+    Callbacks callbacks;
 
     @ViewById(R.id.search)
     TextView searchTextView;
@@ -49,29 +53,29 @@ public class MakeRequestsFragment extends Fragment {
     @TextChange(R.id.search)
     @Click({R.id.search_movies, R.id.search_tv})
     void search() {
+        callbacks.cancelAll();
+
         if (getQuery().isEmpty()) {
-            searchResults = new ArrayList<>();
-            dataSetChanged();
+            handleEmptyQuery();
             return;
         }
 
-        if (searchMoviesRadioButton.isChecked()) {
-            searchMovies();
-        } else {
-            searchTVShows();
-        }
+        Call<List<Request>> call = shouldSearchMovies() ?
+                searchMovies() : searchTVShows();
+
+        callbacks.enqueue(call, searchCallback());
     }
 
-    private void searchMovies() {
-        searchRepository()
-                .searchMovies(getQuery())
-                .enqueue(searchCallback());
+    private boolean shouldSearchMovies() {
+        return searchMoviesRadioButton.isChecked();
     }
 
-    private void searchTVShows() {
-        searchRepository()
-                .searchTV(getQuery())
-                .enqueue(searchCallback());
+    private Call<List<Request>> searchMovies() {
+        return searchRepository().searchMovies(getQuery());
+    }
+
+    private Call<List<Request>> searchTVShows() {
+        return searchRepository().searchTV(getQuery());
     }
 
     private Callback<List<Request>> searchCallback() {
@@ -84,9 +88,17 @@ public class MakeRequestsFragment extends Fragment {
 
             @Override
             public void onFailure(Call<List<Request>> call, Throwable t) {
+                if (call.isCanceled()) {
+                    return;
+                }
                 throw new RuntimeException(t);
             }
         };
+    }
+
+    private void handleEmptyQuery() {
+        searchResults = new ArrayList<>();
+        dataSetChanged();
     }
 
     private void dataSetChanged() {
@@ -120,7 +132,7 @@ public class MakeRequestsFragment extends Fragment {
     }
 
     private SearchRepository searchRepository() {
-        return repositoryFactory.getSearchRepository();
+        return repositoryFactory.get(SearchRepository.class);
     }
 
 }

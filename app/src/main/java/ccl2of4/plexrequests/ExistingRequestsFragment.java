@@ -1,16 +1,10 @@
 package ccl2of4.plexrequests;
 
-import android.content.Context;
-import android.net.Uri;
-import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListView;
-import android.widget.TextView;
 
-import org.androidannotations.annotations.AfterInject;
 import org.androidannotations.annotations.AfterViews;
 import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EFragment;
@@ -74,8 +68,7 @@ public class ExistingRequestsFragment extends Fragment {
     };
 
     private RequestRepository requestRepository() {
-        return repositoryFactory.getRequestRepository();
+        return repositoryFactory.get(RequestRepository.class);
     }
-
 
 }

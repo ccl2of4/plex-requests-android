@@ -1,35 +1,25 @@
 package ccl2of4.plexrequests.model;
 
-import com.google.common.base.Optional;
-import com.google.common.base.Supplier;
-
 import org.androidannotations.annotations.EBean;
 
-import ccl2of4.plexrequests.model.comment.CommentRepository;
-import ccl2of4.plexrequests.model.request.RequestRepository;
-import ccl2of4.plexrequests.model.search.SearchRepository;
+import java.util.HashMap;
+import java.util.Map;
+
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
-@EBean
+@EBean(scope = EBean.Scope.Singleton)
 public class RepositoryFactory {
 
-    public CommentRepository getCommentRepository() {
-        commentRepository = commentRepository != null ? commentRepository :
-                getRetrofit().create(CommentRepository.class);
-        return commentRepository;
-    }
+    public <T> T get(Class<T> cls) {
+        @SuppressWarnings("unchecked")
+        T repository = (T) repositories.get(cls);
 
-    public RequestRepository getRequestRepository() {
-        requestRepository = requestRepository != null ? requestRepository :
-                getRetrofit().create(RequestRepository.class);
-        return requestRepository;
-    }
-
-    public SearchRepository getSearchRepository() {
-        searchRepository = searchRepository != null ? searchRepository :
-                getRetrofit().create(SearchRepository.class);
-        return searchRepository;
+        if (null == repository) {
+            repository = getRetrofit().create(cls);
+            repositories.put(cls, repository);
+        }
+        return repository;
     }
 
     private Retrofit getRetrofit() {
@@ -42,8 +32,6 @@ public class RepositoryFactory {
     }
 
     private Retrofit retrofit;
-    private CommentRepository commentRepository;
-    private RequestRepository requestRepository;
-    private SearchRepository searchRepository;
+    private Map<Class<?>, Object> repositories = new HashMap<>();
 
 }
