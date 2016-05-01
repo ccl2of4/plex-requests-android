@@ -9,17 +9,17 @@ import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 @EBean(scope = EBean.Scope.Singleton)
-public class RepositoryFactory {
+public class ServiceFactory {
 
     public <T> T get(Class<T> cls) {
         @SuppressWarnings("unchecked")
-        T repository = (T) repositories.get(cls);
+        T service = (T) services.get(cls);
 
-        if (null == repository) {
-            repository = getRetrofit().create(cls);
-            repositories.put(cls, repository);
+        if (null == service) {
+            service = getRetrofit().create(cls);
+            services.put(cls, service);
         }
-        return repository;
+        return service;
     }
 
     private Retrofit getRetrofit() {
@@ -32,6 +32,6 @@ public class RepositoryFactory {
     }
 
     private Retrofit retrofit;
-    private Map<Class<?>, Object> repositories = new HashMap<>();
+    private Map<Class<?>, Object> services = new HashMap<>();
 
 }

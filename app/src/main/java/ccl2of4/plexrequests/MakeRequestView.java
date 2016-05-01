@@ -9,14 +9,20 @@ import android.widget.TextView;
 
 import com.squareup.picasso.Picasso;
 
+import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.Click;
 import org.androidannotations.annotations.EViewGroup;
 import org.androidannotations.annotations.ViewById;
 
+import ccl2of4.plexrequests.events.AddRequestEvent;
+import ccl2of4.plexrequests.events.EventBus;
 import ccl2of4.plexrequests.model.request.Request;
 
 @EViewGroup(R.layout.view_make_request)
 public class MakeRequestView extends LinearLayout {
+
+    @Bean
+    EventBus eventBus;
 
     @ViewById(R.id.name)
     TextView nameTextView;
@@ -47,7 +53,7 @@ public class MakeRequestView extends LinearLayout {
 
     @Click(R.id.add)
     void add() {
-
+        eventBus.post(new AddRequestEvent(getRequest()));
     }
 
     private void update() {

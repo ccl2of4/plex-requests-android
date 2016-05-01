@@ -9,14 +9,21 @@ import android.widget.TextView;
 
 import com.squareup.picasso.Picasso;
 
+import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.Click;
 import org.androidannotations.annotations.EViewGroup;
 import org.androidannotations.annotations.ViewById;
 
+import ccl2of4.plexrequests.events.DeleteRequestEvent;
+import ccl2of4.plexrequests.events.EventBus;
+import ccl2of4.plexrequests.events.ViewRequestEvent;
 import ccl2of4.plexrequests.model.request.Request;
 
 @EViewGroup(R.layout.view_existing_request)
 public class ExistingRequestView extends LinearLayout {
+
+    @Bean
+    EventBus eventBus;
 
     @ViewById(R.id.name)
     TextView nameTextView;
@@ -46,17 +53,21 @@ public class ExistingRequestView extends LinearLayout {
 
     @Click(R.id.view)
     void view() {
-
+        eventBus.post(new ViewRequestEvent(getRequest()));
     }
 
     @Click(R.id.mark_complete)
     void markComplete() {
-
+        sendDeleteEvent();
     }
 
     @Click(R.id.delete)
     void delete() {
+        sendDeleteEvent();;
+    }
 
+    void sendDeleteEvent() {
+        eventBus.post(new DeleteRequestEvent(getRequest()));
     }
 
 }

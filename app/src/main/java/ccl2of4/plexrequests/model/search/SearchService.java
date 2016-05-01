@@ -7,7 +7,7 @@ import retrofit2.Call;
 import retrofit2.http.GET;
 import retrofit2.http.Query;
 
-public interface SearchRepository {
+public interface SearchService {
 
     @GET("movies")
     Call<List<Request>> searchMovies(@Query("query") String query);

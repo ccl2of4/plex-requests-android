@@ -1,9 +1,13 @@
 package ccl2of4.plexrequests;
 
+import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListView;
+
+import com.squareup.otto.Subscribe;
 
 import org.androidannotations.annotations.AfterViews;
 import org.androidannotations.annotations.Bean;
@@ -13,9 +17,12 @@ import org.androidannotations.annotations.ViewById;
 import java.util.ArrayList;
 import java.util.List;
 
-import ccl2of4.plexrequests.model.RepositoryFactory;
+import ccl2of4.plexrequests.events.EventBus;
+import ccl2of4.plexrequests.events.RequestsUpdatedEvent;
+import ccl2of4.plexrequests.model.ServiceFactory;
 import ccl2of4.plexrequests.model.request.Request;
 import ccl2of4.plexrequests.model.request.RequestRepository;
+import ccl2of4.plexrequests.model.request.RequestService;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -24,38 +31,35 @@ import retrofit2.Response;
 public class ExistingRequestsFragment extends Fragment {
 
     @Bean
-    RepositoryFactory repositoryFactory;
+    EventBus eventBus;
 
     @ViewById(R.id.existing_requests)
     ListView listView;
 
-    private List<Request> requests;
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        eventBus.register(this);
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        eventBus.unregister(this);
+    }
 
     @AfterViews
     void init() {
-        getExistingRequests();
+        listView.setAdapter(listAdapter);
     }
 
-    void getExistingRequests() {
-        requestRepository().getRequests().enqueue(new Callback<List<Request>>() {
-            @Override
-            public void onResponse(Call<List<Request>> call, Response<List<Request>> response) {
-                requests = response.isSuccessful() ? response.body() : new ArrayList<Request>();
-                dataSetChanged();
-            }
-
-            @Override
-            public void onFailure(Call<List<Request>> call, Throwable t) {
-                throw new RuntimeException(t);
-            }
-        });
+    @Subscribe
+    public void requestsUpdated(RequestsUpdatedEvent event) {
+        requestsUpdated(event.getRequests());
     }
 
-    void dataSetChanged() {
+    void requestsUpdated(List<Request> requests) {
         listAdapter.setRequests(requests);
-        if (null == listView.getAdapter()) {
-            listView.setAdapter(listAdapter);
-        }
     }
 
     private RequestsListAdapter listAdapter = new RequestsListAdapter() {
@@ -66,9 +70,5 @@ public class ExistingRequestsFragment extends Fragment {
             return view;
         }
     };
-
-    private RequestRepository requestRepository() {
-        return repositoryFactory.get(RequestRepository.class);
-    }
 
 }

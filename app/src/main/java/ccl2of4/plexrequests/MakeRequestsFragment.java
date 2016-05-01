@@ -1,5 +1,7 @@
 package ccl2of4.plexrequests;
 
+import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.view.View;
 import android.view.ViewGroup;
@@ -8,7 +10,9 @@ import android.widget.RadioButton;
 import android.widget.TextView;
 
 import com.google.common.base.Function;
+import com.squareup.otto.Subscribe;
 
+import org.androidannotations.annotations.AfterViews;
 import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.Click;
 import org.androidannotations.annotations.EFragment;
@@ -19,10 +23,12 @@ import org.apache.commons.lang3.ObjectUtils;
 import java.util.ArrayList;
 import java.util.List;
 
+import ccl2of4.plexrequests.events.EventBus;
+import ccl2of4.plexrequests.events.ViewRequestEvent;
 import ccl2of4.plexrequests.model.Callbacks;
-import ccl2of4.plexrequests.model.RepositoryFactory;
+import ccl2of4.plexrequests.model.ServiceFactory;
 import ccl2of4.plexrequests.model.request.Request;
-import ccl2of4.plexrequests.model.search.SearchRepository;
+import ccl2of4.plexrequests.model.search.SearchService;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -31,7 +37,10 @@ import retrofit2.Response;
 public class MakeRequestsFragment extends Fragment {
 
     @Bean
-    RepositoryFactory repositoryFactory;
+    EventBus eventBus;
+
+    @Bean
+    ServiceFactory serviceFactory;
 
     @Bean
     Callbacks callbacks;
@@ -49,6 +58,27 @@ public class MakeRequestsFragment extends Fragment {
     RadioButton searchTVRadioButton;
 
     private List<Request> searchResults;
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        eventBus.register(this);
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        eventBus.unregister(this);
+    }
+
+    @Subscribe
+    public void viewRequest(ViewRequestEvent event) {
+        Request request = event.getRequest();
+        searchMoviesRadioButton.setChecked(request.isMovie());
+        searchTVRadioButton.setChecked(!request.isMovie());
+        searchTextView.setText(request.getName());
+        searchResultsListView.smoothScrollToPosition(0);
+    }
 
     @TextChange(R.id.search)
     @Click({R.id.search_movies, R.id.search_tv})
@@ -71,11 +101,11 @@ public class MakeRequestsFragment extends Fragment {
     }
 
     private Call<List<Request>> searchMovies() {
-        return searchRepository().searchMovies(getQuery());
+        return searchService().searchMovies(getQuery());
     }
 
     private Call<List<Request>> searchTVShows() {
-        return searchRepository().searchTV(getQuery());
+        return searchService().searchTV(getQuery());
     }
 
     private Callback<List<Request>> searchCallback() {
@@ -131,8 +161,8 @@ public class MakeRequestsFragment extends Fragment {
         return ObjectUtils.toString(searchTextView.getText());
     }
 
-    private SearchRepository searchRepository() {
-        return repositoryFactory.get(SearchRepository.class);
+    private SearchService searchService() {
+        return serviceFactory.get(SearchService.class);
     }
 
 }
