@@ -2,7 +2,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="ccl2of4.plexrequests.ExistingRequestsFragment"
+    tools:context=".fragment.ExistingRequestsFragment"
     android:orientation="vertical">
 
     <ListView

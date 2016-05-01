@@ -1,4 +1,4 @@
-package ccl2of4.plexrequests;
+package ccl2of4.plexrequests.view;
 
 import android.content.Context;
 import android.view.View;

@@ -10,11 +10,12 @@ import org.androidannotations.annotations.EBean;
 import java.util.ArrayList;
 import java.util.List;
 
+import ccl2of4.plexrequests.model.callbacks.ErrorLoggingCallback;
 import ccl2of4.plexrequests.events.AddRequestEvent;
 import ccl2of4.plexrequests.events.DeleteRequestEvent;
 import ccl2of4.plexrequests.events.EventBus;
 import ccl2of4.plexrequests.events.RequestsUpdatedEvent;
-import ccl2of4.plexrequests.model.Callbacks;
+import ccl2of4.plexrequests.model.callbacks.Callbacks;
 import ccl2of4.plexrequests.model.ServiceFactory;
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -40,10 +41,6 @@ public class RequestRepository {
         refreshRequests();
     }
 
-    public List<Request> getRequests() {
-        return requests;
-    }
-
     @Subscribe
     public void addRequest(AddRequestEvent event) {
         requestService().addRequest(event.getRequest()).enqueue(modifyRequestsCallback());
@@ -61,15 +58,10 @@ public class RequestRepository {
     }
 
     private Callback<Void> modifyRequestsCallback() {
-        return new Callback<Void>() {
+        return new ErrorLoggingCallback<Void>() {
             @Override
-            public void onResponse(Call<Void> call, Response<Void> response) {
+            protected void onCompletion(Call<Void> call, Response<Void> response, boolean success) {
                 refreshRequests();
-            }
-
-            @Override
-            public void onFailure(Call<Void> call, Throwable t) {
-                throw new RuntimeException(t);
             }
         };
     }
@@ -80,16 +72,11 @@ public class RequestRepository {
     }
 
     private Callback<List<Request>> getRequestsCallback() {
-        return new Callback<List<Request>>() {
+        return new ErrorLoggingCallback<List<Request>>() {
             @Override
-            public void onResponse(Call<List<Request>> call, Response<List<Request>> response) {
-                requests = response.isSuccessful() ? response.body() : new ArrayList<Request>();
+            protected void onCompletion(Call<List<Request>> call, Response<List<Request>> response, boolean success) {
+                requests = success ? response.body() : new ArrayList<Request>();
                 eventBus.post(new RequestsUpdatedEvent(requests));
-            }
-
-            @Override
-            public void onFailure(Call<List<Request>> call, Throwable t) {
-                throw new RuntimeException(t);
             }
         };
     }

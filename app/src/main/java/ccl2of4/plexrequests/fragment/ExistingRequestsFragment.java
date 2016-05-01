@@ -1,4 +1,4 @@
-package ccl2of4.plexrequests;
+package ccl2of4.plexrequests.fragment;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -14,18 +14,15 @@ import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EFragment;
 import org.androidannotations.annotations.ViewById;
 
-import java.util.ArrayList;
 import java.util.List;
 
+import ccl2of4.plexrequests.view.ExistingRequestView;
+import ccl2of4.plexrequests.R;
+import ccl2of4.plexrequests.view.ExistingRequestView_;
+import ccl2of4.plexrequests.view.RequestsListAdapter;
 import ccl2of4.plexrequests.events.EventBus;
 import ccl2of4.plexrequests.events.RequestsUpdatedEvent;
-import ccl2of4.plexrequests.model.ServiceFactory;
 import ccl2of4.plexrequests.model.request.Request;
-import ccl2of4.plexrequests.model.request.RequestRepository;
-import ccl2of4.plexrequests.model.request.RequestService;
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
 
 @EFragment(R.layout.fragment_existing_requests)
 public class ExistingRequestsFragment extends Fragment {

@@ -1,9 +1,12 @@
-package ccl2of4.plexrequests;
+package ccl2of4.plexrequests.view;
 
 import android.content.Context;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
+
+import ccl2of4.plexrequests.fragment.ExistingRequestsFragment_;
+import ccl2of4.plexrequests.fragment.MakeRequestsFragment_;
 
 public class MainFragmentPagerAdapter extends FragmentPagerAdapter {
 

@@ -1,4 +1,4 @@
-package ccl2of4.plexrequests;
+package ccl2of4.plexrequests.fragment;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -9,10 +9,8 @@ import android.widget.ListView;
 import android.widget.RadioButton;
 import android.widget.TextView;
 
-import com.google.common.base.Function;
 import com.squareup.otto.Subscribe;
 
-import org.androidannotations.annotations.AfterViews;
 import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.Click;
 import org.androidannotations.annotations.EFragment;
@@ -23,9 +21,14 @@ import org.apache.commons.lang3.ObjectUtils;
 import java.util.ArrayList;
 import java.util.List;
 
+import ccl2of4.plexrequests.view.MakeRequestView;
+import ccl2of4.plexrequests.R;
+import ccl2of4.plexrequests.view.MakeRequestView_;
+import ccl2of4.plexrequests.view.RequestsListAdapter;
+import ccl2of4.plexrequests.model.callbacks.ErrorLoggingCallback;
 import ccl2of4.plexrequests.events.EventBus;
 import ccl2of4.plexrequests.events.ViewRequestEvent;
-import ccl2of4.plexrequests.model.Callbacks;
+import ccl2of4.plexrequests.model.callbacks.Callbacks;
 import ccl2of4.plexrequests.model.ServiceFactory;
 import ccl2of4.plexrequests.model.request.Request;
 import ccl2of4.plexrequests.model.search.SearchService;
@@ -82,7 +85,7 @@ public class MakeRequestsFragment extends Fragment {
 
     @TextChange(R.id.search)
     @Click({R.id.search_movies, R.id.search_tv})
-    void search() {
+    void updateSearchResults() {
         callbacks.cancelAll();
 
         if (getQuery().isEmpty()) {
@@ -90,38 +93,25 @@ public class MakeRequestsFragment extends Fragment {
             return;
         }
 
-        Call<List<Request>> call = shouldSearchMovies() ?
-                searchMovies() : searchTVShows();
+        callbacks.enqueue(search(), searchCallback());
+    }
 
-        callbacks.enqueue(call, searchCallback());
+    private Call<List<Request>> search() {
+        return shouldSearchMovies() ?
+                searchService().searchMovies(getQuery()) :
+                searchService().searchTV(getQuery());
     }
 
     private boolean shouldSearchMovies() {
         return searchMoviesRadioButton.isChecked();
     }
 
-    private Call<List<Request>> searchMovies() {
-        return searchService().searchMovies(getQuery());
-    }
-
-    private Call<List<Request>> searchTVShows() {
-        return searchService().searchTV(getQuery());
-    }
-
     private Callback<List<Request>> searchCallback() {
-        return new Callback<List<Request>>() {
+        return new ErrorLoggingCallback<List<Request>>() {
             @Override
-            public void onResponse(Call<List<Request>> call, Response<List<Request>> response) {
-                searchResults = response.isSuccessful() ? response.body() : new ArrayList<Request>();
+            protected void onCompletion(Call<List<Request>> call, Response<List<Request>> response, boolean success) {
+                searchResults = success ? response.body() : new ArrayList<Request>();
                 dataSetChanged();
-            }
-
-            @Override
-            public void onFailure(Call<List<Request>> call, Throwable t) {
-                if (call.isCanceled()) {
-                    return;
-                }
-                throw new RuntimeException(t);
             }
         };
     }
@@ -148,14 +138,6 @@ public class MakeRequestsFragment extends Fragment {
         }
     };
 
-    private Function<Request, String> getName() {
-        return new Function<Request, String>() {
-            @Override
-            public String apply(Request request) {
-                return request.getName();
-            }
-        };
-    }
 
     private String getQuery() {
         return ObjectUtils.toString(searchTextView.getText());

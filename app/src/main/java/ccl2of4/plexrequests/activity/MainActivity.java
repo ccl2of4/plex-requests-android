@@ -1,4 +1,4 @@
-package ccl2of4.plexrequests;
+package ccl2of4.plexrequests.activity;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -13,9 +13,10 @@ import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EActivity;
 import org.androidannotations.annotations.ViewById;
 
+import ccl2of4.plexrequests.view.MainFragmentPagerAdapter;
+import ccl2of4.plexrequests.R;
 import ccl2of4.plexrequests.events.EventBus;
 import ccl2of4.plexrequests.events.ViewRequestEvent;
-import ccl2of4.plexrequests.model.request.RequestRepository;
 
 @EActivity(R.layout.activity_main)
 public class MainActivity extends AppCompatActivity {

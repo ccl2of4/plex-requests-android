@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
-    tools:context="ccl2of4.plexrequests.MainActivity">
+    tools:context=".activity.MainActivity">
 
     <LinearLayout
         android:orientation="vertical"

@@ -1,4 +1,4 @@
-package ccl2of4.plexrequests;
+package ccl2of4.plexrequests.view;
 
 import android.content.Context;
 import android.content.Intent;
@@ -14,6 +14,7 @@ import org.androidannotations.annotations.Click;
 import org.androidannotations.annotations.EViewGroup;
 import org.androidannotations.annotations.ViewById;
 
+import ccl2of4.plexrequests.R;
 import ccl2of4.plexrequests.events.DeleteRequestEvent;
 import ccl2of4.plexrequests.events.EventBus;
 import ccl2of4.plexrequests.events.ViewRequestEvent;

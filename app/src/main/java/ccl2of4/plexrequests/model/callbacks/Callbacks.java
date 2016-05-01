@@ -1,4 +1,4 @@
-package ccl2of4.plexrequests.model;
+package ccl2of4.plexrequests.model.callbacks;
 
 import org.androidannotations.annotations.EBean;
 
