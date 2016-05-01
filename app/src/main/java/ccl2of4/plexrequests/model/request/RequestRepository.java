@@ -1,5 +1,8 @@
 package ccl2of4.plexrequests.model.request;
 
+import android.support.annotation.Nullable;
+
+import com.google.common.base.Optional;
 import com.squareup.otto.Produce;
 import com.squareup.otto.Subscribe;
 
@@ -10,6 +13,7 @@ import org.androidannotations.annotations.EBean;
 import java.util.ArrayList;
 import java.util.List;
 
+import ccl2of4.plexrequests.model.callbacks.APICallback;
 import ccl2of4.plexrequests.model.callbacks.ErrorLoggingCallback;
 import ccl2of4.plexrequests.events.AddRequestEvent;
 import ccl2of4.plexrequests.events.DeleteRequestEvent;
@@ -58,9 +62,9 @@ public class RequestRepository {
     }
 
     private Callback<Void> modifyRequestsCallback() {
-        return new ErrorLoggingCallback<Void>() {
+        return new APICallback<Void>() {
             @Override
-            protected void onCompletion(Call<Void> call, Response<Void> response, boolean success) {
+            public void onCompletion(@Nullable Void object) {
                 refreshRequests();
             }
         };
@@ -72,10 +76,10 @@ public class RequestRepository {
     }
 
     private Callback<List<Request>> getRequestsCallback() {
-        return new ErrorLoggingCallback<List<Request>>() {
+        return new APICallback<List<Request>>() {
             @Override
-            protected void onCompletion(Call<List<Request>> call, Response<List<Request>> response, boolean success) {
-                requests = success ? response.body() : new ArrayList<Request>();
+            public void onCompletion(@Nullable List<Request> object) {
+                requests = Optional.fromNullable(object).or(new ArrayList<Request>());
                 eventBus.post(new RequestsUpdatedEvent(requests));
             }
         };

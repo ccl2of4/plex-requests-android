@@ -9,8 +9,10 @@ import android.widget.ListView;
 import android.widget.RadioButton;
 import android.widget.TextView;
 
+import com.google.common.base.Optional;
 import com.squareup.otto.Subscribe;
 
+import org.androidannotations.annotations.AfterViews;
 import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.Click;
 import org.androidannotations.annotations.EFragment;
@@ -21,20 +23,16 @@ import org.apache.commons.lang3.ObjectUtils;
 import java.util.ArrayList;
 import java.util.List;
 
+import ccl2of4.plexrequests.model.callbacks.APICallback;
+import ccl2of4.plexrequests.model.search.SearchRepository;
+import ccl2of4.plexrequests.view.ArrayListAdapter;
 import ccl2of4.plexrequests.view.MakeRequestView;
 import ccl2of4.plexrequests.R;
 import ccl2of4.plexrequests.view.MakeRequestView_;
-import ccl2of4.plexrequests.view.RequestsListAdapter;
-import ccl2of4.plexrequests.model.callbacks.ErrorLoggingCallback;
 import ccl2of4.plexrequests.events.EventBus;
 import ccl2of4.plexrequests.events.ViewRequestEvent;
-import ccl2of4.plexrequests.model.callbacks.Callbacks;
-import ccl2of4.plexrequests.model.ServiceFactory;
 import ccl2of4.plexrequests.model.request.Request;
-import ccl2of4.plexrequests.model.search.SearchService;
-import retrofit2.Call;
 import retrofit2.Callback;
-import retrofit2.Response;
 
 @EFragment(R.layout.fragment_make_requests)
 public class MakeRequestsFragment extends Fragment {
@@ -43,10 +41,7 @@ public class MakeRequestsFragment extends Fragment {
     EventBus eventBus;
 
     @Bean
-    ServiceFactory serviceFactory;
-
-    @Bean
-    Callbacks callbacks;
+    SearchRepository searchRepository;
 
     @ViewById(R.id.search)
     TextView searchTextView;
@@ -60,8 +55,6 @@ public class MakeRequestsFragment extends Fragment {
     @ViewById(R.id.search_tv)
     RadioButton searchTVRadioButton;
 
-    private List<Request> searchResults;
-
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -72,6 +65,11 @@ public class MakeRequestsFragment extends Fragment {
     public void onDestroy() {
         super.onDestroy();
         eventBus.unregister(this);
+    }
+
+    @AfterViews
+    public void init() {
+        searchResultsListView.setAdapter(listAdapter);
     }
 
     @Subscribe
@@ -86,65 +84,37 @@ public class MakeRequestsFragment extends Fragment {
     @TextChange(R.id.search)
     @Click({R.id.search_movies, R.id.search_tv})
     void updateSearchResults() {
-        callbacks.cancelAll();
-
-        if (getQuery().isEmpty()) {
-            handleEmptyQuery();
-            return;
-        }
-
-        callbacks.enqueue(search(), searchCallback());
+        searchRepository.search(getSearchType())
+                .withQuery(getQuery())
+                .enqueue(searchCallback());
     }
 
-    private Call<List<Request>> search() {
-        return shouldSearchMovies() ?
-                searchService().searchMovies(getQuery()) :
-                searchService().searchTV(getQuery());
+    private SearchRepository.SearchType getSearchType() {
+        return searchMoviesRadioButton.isChecked() ?
+                SearchRepository.SearchType.MOVIES : SearchRepository.SearchType.TV_SHOWS;
     }
 
-    private boolean shouldSearchMovies() {
-        return searchMoviesRadioButton.isChecked();
-    }
-
-    private Callback<List<Request>> searchCallback() {
-        return new ErrorLoggingCallback<List<Request>>() {
+    private APICallback<List<Request>> searchCallback() {
+        return new APICallback<List<Request>>() {
             @Override
-            protected void onCompletion(Call<List<Request>> call, Response<List<Request>> response, boolean success) {
-                searchResults = success ? response.body() : new ArrayList<Request>();
-                dataSetChanged();
+            public void onCompletion(@Nullable List<Request> results) {
+                List<Request> searchResults = Optional.fromNullable(results).or(new ArrayList<Request>());
+                listAdapter.setObjects(searchResults);
             }
         };
     }
 
-    private void handleEmptyQuery() {
-        searchResults = new ArrayList<>();
-        dataSetChanged();
-    }
-
-    private void dataSetChanged() {
-        listAdapter.setRequests(searchResults);
-
-        if (null == searchResultsListView.getAdapter()) {
-            searchResultsListView.setAdapter(listAdapter);
-        }
-    }
-
-    private RequestsListAdapter listAdapter = new RequestsListAdapter() {
+    private ArrayListAdapter<Request> listAdapter = new ArrayListAdapter<Request>() {
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
             MakeRequestView view = MakeRequestView_.build(getContext());
-            view.setRequest(getRequest(position));
+            view.setRequest(getObject(position));
             return view;
         }
     };
 
-
     private String getQuery() {
         return ObjectUtils.toString(searchTextView.getText());
-    }
-
-    private SearchService searchService() {
-        return serviceFactory.get(SearchService.class);
     }
 
 }

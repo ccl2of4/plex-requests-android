@@ -16,10 +16,10 @@ import org.androidannotations.annotations.ViewById;
 
 import java.util.List;
 
+import ccl2of4.plexrequests.view.ArrayListAdapter;
 import ccl2of4.plexrequests.view.ExistingRequestView;
 import ccl2of4.plexrequests.R;
 import ccl2of4.plexrequests.view.ExistingRequestView_;
-import ccl2of4.plexrequests.view.RequestsListAdapter;
 import ccl2of4.plexrequests.events.EventBus;
 import ccl2of4.plexrequests.events.RequestsUpdatedEvent;
 import ccl2of4.plexrequests.model.request.Request;
@@ -52,18 +52,15 @@ public class ExistingRequestsFragment extends Fragment {
 
     @Subscribe
     public void requestsUpdated(RequestsUpdatedEvent event) {
-        requestsUpdated(event.getRequests());
+        List<Request> requests = event.getRequests();
+        listAdapter.setObjects(requests);
     }
 
-    void requestsUpdated(List<Request> requests) {
-        listAdapter.setRequests(requests);
-    }
-
-    private RequestsListAdapter listAdapter = new RequestsListAdapter() {
+    private ArrayListAdapter<Request> listAdapter = new ArrayListAdapter<Request>() {
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
             ExistingRequestView view = ExistingRequestView_.build(getContext());
-            view.setRequest(getRequest(position));
+            view.setRequest(getObject(position));
             return view;
         }
     };

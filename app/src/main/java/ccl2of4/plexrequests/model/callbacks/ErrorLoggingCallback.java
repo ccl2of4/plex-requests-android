@@ -14,7 +14,7 @@ public abstract class ErrorLoggingCallback<T> implements Callback<T> {
     public void onResponse(Call<T> call, Response<T> response) {
         boolean success = response.isSuccessful();
         if (!success) {
-            Log.e(TAG, String.format("Erorr calling %s", call.request().url()));
+            Log.e(TAG, String.format("Error calling %s", call.request().url()));
         }
 
         onCompletion(call, response, success);
@@ -22,11 +22,13 @@ public abstract class ErrorLoggingCallback<T> implements Callback<T> {
 
     @Override
     public void onFailure(Call<T> call, Throwable t) {
-        if (!call.isCanceled()) {
-            Log.e(TAG, String.format("Erorr calling %s", call.request().url()), t);
+        if (call.isCanceled()) {
+            return;
         }
+
+        Log.e(TAG, String.format("Error calling %s", call.request().url()), t);
         onCompletion(call, null, false);
     }
 
-    protected abstract void onCompletion(Call<T> call, Response<T> response, boolean success);
+    public abstract void onCompletion(Call<T> call, Response<T> response, boolean success);
 }
